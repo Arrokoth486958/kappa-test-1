@@ -7,14 +7,19 @@ edition = "2021"
 
 [dependencies]
 egui = "0.23"
-eframe = "0.23"
-egui_extras = "0.23"
 # egui-wgpu = "0.23"
 wgpu = "0.17"
 
 [dependencies.winit]
 version = "0.29"
 features = ["rwh_05"]
+
+[dependencies.eframe]
+version = "0.23"
+
+[dependencies.egui_extras]
+version = "0.23"
+features = ["image"]
 
 [profile.release]
 strip = true
