@@ -1,0 +1,24 @@
+[package]
+name = "kappa-egui"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+egui = "0.23"
+eframe = "0.23"
+egui_extras = "0.23"
+# egui-wgpu = "0.23"
+wgpu = "0.17"
+
+[dependencies.winit]
+version = "0.29"
+features = ["rwh_05"]
+
+[profile.release]
+strip = true
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
