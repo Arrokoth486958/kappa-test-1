@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 egui = "0.23"
+font-kit = "0.11.0"
+fontdb = "0.16.0"
 # egui-wgpu = "0.23"
 wgpu = "0.17"
 

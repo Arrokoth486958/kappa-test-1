@@ -1,10 +1,13 @@
-use eframe::NativeOptions;
-use egui::Vec2;
+use eframe::{NativeOptions, CreationContext};
+use egui::{Vec2, FontDefinitions, FontFamily};
+use font_kit::family_name::FamilyName;
+use fontdb::Family;
 // use winit::{window::WindowBuilder, dpi::LogicalSize, event_loop::EventLoop, event::{WindowEvent, Event}};
 
 fn main() {
     let options = NativeOptions {
         follow_system_theme: false,
+        multisampling: 2,
         centered: true,
         initial_window_size: Some(Vec2::new(600.0, 400.0)),
         min_window_size: Some(Vec2::new(600.0, 400.0)),
@@ -12,7 +15,7 @@ fn main() {
     };
     eframe::run_native("Kappa", options, Box::new(|cc| {
         egui_extras::install_image_loaders(&cc.egui_ctx);
-        Box::<MyApp>::default()
+        Box::<MyApp>::new(MyApp::new(cc))
     })).unwrap();
 
     // let window_builder = WindowBuilder::new()
@@ -52,11 +55,47 @@ struct MyApp {
     age: u32,
 }
 
-impl Default for MyApp {
-    fn default() -> Self {
-        Self {
-            name: "Arthur".to_owned(),
-            age: 42,
+impl MyApp {
+    fn new(cc: &CreationContext) -> Self {
+        let ctx = &cc.egui_ctx;
+
+        let mut fonts = FontDefinitions::default();
+        let mut database = fontdb::Database::new();
+        database.load_system_fonts();
+        // println!("{:?}", database);
+        for i in database.faces() {
+            let family_name = i.families.get(0).unwrap();
+            if family_name.0 == database.family_name(&Family::Serif) {
+                match &i.source {
+                    fontdb::Source::Binary(bin) => {
+                        println!("bin")
+                    }
+                    fontdb::Source::File(path) => {
+                        println!("file")
+                    }
+                    fontdb::Source::SharedFile(path, bin) => {
+                        println!("sharedfile")
+                    }
+                }
+            }
+        }
+        // let sys_fonts = font_kit::source::SystemSource::new().all_fonts().unwrap();
+        // println!("{:?}", sys_fonts);
+        
+
+        // 笑死，我超勇的
+        fonts.families.clear();
+        fonts.font_data.clear();
+
+        // fonts.families.append(FontFamily::Name("Default"));
+
+        println!("{:?}", fonts.families);
+
+        ctx.set_fonts(fonts);
+
+        MyApp {
+            name: "Arrokoth".to_owned(),
+            age: 24,
         }
     }
 }
