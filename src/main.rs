@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use eframe::{NativeOptions, CreationContext};
-use egui::{Vec2, FontDefinitions, FontFamily};
+use egui::{Vec2, FontDefinitions, FontFamily, FontData};
 use font_kit::family_name::FamilyName;
 use fontdb::Family;
 // use winit::{window::WindowBuilder, dpi::LogicalSize, event_loop::EventLoop, event::{WindowEvent, Event}};
@@ -58,34 +60,42 @@ struct MyApp {
 impl MyApp {
     fn new(cc: &CreationContext) -> Self {
         let ctx = &cc.egui_ctx;
-
+        
         let mut fonts = FontDefinitions::default();
+        // 笑死，我超勇的
+        fonts.families.clear();
+        fonts.font_data.clear();
+
         let mut database = fontdb::Database::new();
+        let target_family = database.family_name(&Family::Serif);
+        let target_font_family = FontFamily::Name(target_family.into());
+        fonts.families.insert(target_font_family.clone(), vec![]);
         database.load_system_fonts();
         // println!("{:?}", database);
         for i in database.faces() {
             let family_name = i.families.get(0).unwrap();
-            if family_name.0 == database.family_name(&Family::Serif) {
+            if family_name.0 == target_family {
+                let mut data: Vec<u8> = Vec::new();
                 match &i.source {
                     fontdb::Source::Binary(bin) => {
-                        println!("bin")
+                        let as_ref: &dyn AsRef<[u8]> =  bin.as_ref();
+                        let slice: &[u8] = as_ref.as_ref();
+                        data = slice.to_vec()
                     }
                     fontdb::Source::File(path) => {
-                        println!("file")
+                        data = std::fs::read(path).unwrap();
                     }
                     fontdb::Source::SharedFile(path, bin) => {
-                        println!("sharedfile")
+                        todo!("Font by SharedFile")
                     }
                 }
+                // 加载字体到内存
+                let x = fonts.families.get_mut(&target_font_family).unwrap().push(family_name.0.to_owned());
+                fonts.font_data.insert(family_name.0.to_owned(), FontData::from_owned(data));
             }
         }
         // let sys_fonts = font_kit::source::SystemSource::new().all_fonts().unwrap();
         // println!("{:?}", sys_fonts);
-        
-
-        // 笑死，我超勇的
-        fonts.families.clear();
-        fonts.font_data.clear();
 
         // fonts.families.append(FontFamily::Name("Default"));
 
